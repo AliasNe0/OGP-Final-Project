@@ -6,7 +6,6 @@ using Unity.Netcode;
 public class LobbyController : MonoBehaviour
 {
     [SerializeField] private GameObject lobbyUI;
-    private bool lobbyActive = false;
 
     private void FixedUpdate()
     {

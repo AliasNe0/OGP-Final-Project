@@ -8,31 +8,27 @@ public class DeathSentence : MonoBehaviour
     [Tooltip("Elevation on which the player will die")]
     [SerializeField] private float deathElevation = -10f;
     [SerializeField] private float deathLength = 2f;
-    private AdvancedWalkerController controllerScript;
+    private GameObject gates;
     private Vector3 defaultPosition;
-    private bool dead = false;
 
     private void Start()
     {
         defaultPosition = transform.position;
-        controllerScript = GetComponent<AdvancedWalkerController>();
+        gates = GameObject.Find($"Environment/Gates1");
+        MoveGates();
     }
 
     private void FixedUpdate()
     {
-        if (transform.position.y < deathElevation && dead == false)
+        if (transform.position.y < deathElevation)
         {
-            dead = true;
             transform.position = defaultPosition;
-            //controllerScript.enabled = false;
-            StartCoroutine("DeathTimer");
+            MoveGates();
         }
     }
 
-    IEnumerator DeathTimer()
+    public void MoveGates()
     {
-        yield return new WaitForSeconds(deathLength);
-        //controllerScript.enabled = true;
-        dead = false;
+        gates.GetComponent<GateMover>().StartGatesCoroutine();
     }
 }

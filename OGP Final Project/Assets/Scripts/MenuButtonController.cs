@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using CMF;
 
 public class MenuButtonController : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class MenuButtonController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Escape) && !menuUI.active)
         {
             ShowMenu(true);
+            NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = false;
+            NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = false;
+            NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().useGravity = true;
         }
     }
 
@@ -26,6 +30,9 @@ public class MenuButtonController : MonoBehaviour
     public void ContinueGame()
     {
         ShowMenu(false);
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = true;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = true;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().useGravity = false;
     }
 
     public void QuitGame()

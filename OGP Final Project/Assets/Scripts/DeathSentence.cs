@@ -1,34 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using CMF;
 
 public class DeathSentence : MonoBehaviour
 {
     [Tooltip("Elevation on which the player will die")]
     [SerializeField] private float deathElevation = -10f;
     [SerializeField] private float deathLength = 2f;
-    private GameObject gates;
+    [SerializeField] public PlayerState playerState = PlayerState.Alive;
     private Vector3 defaultPosition;
+
+    public enum PlayerState
+    {
+        Alive,
+        Dead
+    }
 
     private void Start()
     {
         defaultPosition = transform.position;
-        gates = GameObject.Find($"Environment/Gates1");
-        MoveGates();
+        playerState = PlayerState.Dead;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (transform.position.y < deathElevation)
         {
+            playerState = PlayerState.Dead;
             transform.position = defaultPosition;
-            MoveGates();
         }
-    }
-
-    public void MoveGates()
-    {
-        gates.GetComponent<GateMover>().StartGatesCoroutine();
     }
 }

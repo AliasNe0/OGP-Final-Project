@@ -1,48 +1,71 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using System;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [SerializeField] GameObject playerPrefab;
+    public NetworkVariable<float> playerLimit = new NetworkVariable<float>(4f, NetworkVariableReadPermission.Everyone);
+    public NetworkVariable<float> playerCount = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone);
+    List<float> playerList = new List<float>();
+
+    static PlayerSpawner _instance;
+    public static PlayerSpawner Singleton { get { return _instance; } }
+
+    public void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
 
     void Start()
     {
         NetworkManager.Singleton.OnServerStarted += OnServerStarted;
     }
 
-    private void OnServerStarted()
+    void OnServerStarted()
     {
-        if (NetworkManager.Singleton.IsServer)
+        if (NetworkManager.Singleton.IsHost)
         {
-            if (NetworkManager.Singleton.IsHost)
-            {
-                GameObject go = Instantiate(playerPrefab);
-                NetworkObject no = go.GetComponent<NetworkObject>();
-                no.SpawnAsPlayerObject(NetworkManager.Singleton.LocalClientId);
-            }
-
+            SpawnPlayer(NetworkManager.Singleton.LocalClientId);
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-            //NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisConnectCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisConnectCallback;
         }
     }
 
-    private void OnClientConnectedCallback(ulong clientID)
+    void OnClientConnectedCallback(ulong clientID)
     {
-        if (NetworkManager.Singleton.IsServer)
+        SpawnPlayer(clientID);
+    }
+
+    private void SpawnPlayer(ulong clientID)
+    {
+        if (playerCount.Value < playerLimit.Value)
         {
-            GameObject go = Instantiate(playerPrefab);
-            NetworkObject no = go.GetComponent<NetworkObject>();
-            no.SpawnAsPlayerObject(clientID);
+            for (float id = 1f; id < playerLimit.Value; id++)
+            {
+                if (!playerList.Contains(id))
+                {
+                    playerList.Add(id);
+                    NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
+                    no.GetComponent<CustomID>().id = id;
+                    //no.GetComponent<OGPA_PlayerMover>().originalColor.Value = GameObject.Find($"Environment/SpawnPoint{(int)id}/Cube").GetComponent<MeshRenderer>().material.color;
+                    no.transform.position = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform.position;
+                    break;
+                }
+            }
         }
     }
 
-    //private void OnClientDisConnectCallback(ulong clientID)
-    //{
-    //    NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
-    //    Destroy(no.gameObject);
-    //    no.Despawn();
-    //}
+    void OnClientDisConnectCallback(ulong clientID)
+    {
+        NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
+        float id = no.GetComponent<CustomID>().id;
+        playerList.Remove(id);
+    }
 }

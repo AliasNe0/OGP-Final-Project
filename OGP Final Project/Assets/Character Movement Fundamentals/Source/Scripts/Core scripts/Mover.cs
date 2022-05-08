@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Unity.Netcode;
 
 namespace CMF
 {
@@ -311,7 +312,8 @@ namespace CMF
 		//Set mover velocity;
 		public void SetVelocity(Vector3 _velocity)
 		{
-			rig.velocity = _velocity + currentGroundAdjustmentVelocity;	
+			if (gameObject.GetComponent<NetworkObject>().IsOwner)
+				rig.velocity = _velocity + currentGroundAdjustmentVelocity;	
 		}	
 
 		//Returns 'true' if mover is touching ground and the angle between hte 'up' vector and ground normal is not too steep (e.g., angle < slope_limit);

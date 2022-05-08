@@ -13,9 +13,11 @@ public class GateMover : MonoBehaviour
     [SerializeField] private Vector3 targetPosition = new Vector3(0f, -4f, 0f); // realtive target position of the gates
     private Vector3 defaultPosition; // default position of the gates
 
+
     private void Start()
     {
         defaultPosition = transform.position;
+        targetPosition = defaultPosition + targetPosition;
     }
 
     public void StartGatesCoroutine()
@@ -26,34 +28,31 @@ public class GateMover : MonoBehaviour
     IEnumerator CloseTimer()
     {
         yield return new WaitForSeconds(closeLengh);
-        targetPosition = defaultPosition + targetPosition;
-        StartCoroutine("OpenGates");
+        OpenGates();
         StartCoroutine("OpenTimer");
     }
 
-    IEnumerator OpenTimer()
-    {
-        yield return new WaitForSeconds(openLengh);
-        StartCoroutine("CloseGates");
-    }
-
-    IEnumerator OpenGates()
+    private void OpenGates()
     {
         Vector3 startPosition = defaultPosition;
         Vector3 endPosition = targetPosition;
-        float travelPercent = 0f;
-        while (travelPercent < 1f)
-        {
-            travelPercent += Time.deltaTime * movementSpeed;
-            transform.position = Vector3.Lerp(startPosition, endPosition, travelPercent);
-            yield return new WaitForEndOfFrame();
-        }
+        StartCoroutine(FollowPath(startPosition, endPosition));
+    }
+    IEnumerator OpenTimer()
+    {
+        yield return new WaitForSeconds(openLengh);
+        CloseGates();
     }
 
-    IEnumerator CloseGates()
+    private void CloseGates()
     {
         Vector3 startPosition = targetPosition;
         Vector3 endPosition = defaultPosition;
+        StartCoroutine(FollowPath(startPosition, endPosition));
+    }
+
+    IEnumerator FollowPath(Vector3 startPosition, Vector3 endPosition)
+    {
         float travelPercent = 0f;
         while (travelPercent < 1f)
         {

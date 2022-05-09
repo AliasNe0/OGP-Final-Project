@@ -40,7 +40,10 @@ public class PlayerSpawner : MonoBehaviour
 
     void OnClientConnectedCallback(ulong clientID)
     {
-        SpawnPlayer(clientID);
+        if (NetworkManager.Singleton.IsHost)
+        {
+            SpawnPlayer(clientID);
+        }
     }
 
     private void SpawnPlayer(ulong clientID)
@@ -53,7 +56,7 @@ public class PlayerSpawner : MonoBehaviour
                 {
                     playerList.Add(id);
                     NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
-                    no.GetComponent<CustomID>().id = id;
+                    no.GetComponent<CustomID>().id.Value = id;
                     //no.GetComponent<OGPA_PlayerMover>().originalColor.Value = GameObject.Find($"Environment/SpawnPoint{(int)id}/Cube").GetComponent<MeshRenderer>().material.color;
                     no.transform.position = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform.position;
                     break;
@@ -64,8 +67,11 @@ public class PlayerSpawner : MonoBehaviour
 
     void OnClientDisConnectCallback(ulong clientID)
     {
-        NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
-        float id = no.GetComponent<CustomID>().id;
-        playerList.Remove(id);
+        if (NetworkManager.Singleton.IsHost)
+        {
+            NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
+            float id = no.GetComponent<CustomID>().id.Value;
+            playerList.Remove(id);
+        }
     }
 }

@@ -1,5 +1,7 @@
 using Unity.Netcode.Components;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Unity.Netcode.Samples
 {
@@ -21,7 +23,7 @@ namespace Unity.Netcode.Samples
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            CanCommitToTransform = IsOwner;
+            StartCoroutine("SpawnTimer");
         }
 
         protected override void Update()
@@ -34,6 +36,12 @@ namespace Unity.Netcode.Samples
                     TryCommitTransformToServer(transform, NetworkManager.LocalTime.Time);
                 }
             }
+        }
+
+        IEnumerator SpawnTimer()
+        {
+            yield return new WaitForSeconds(1f); // Stop the coroutine and wait for the amount of seconds
+            CanCommitToTransform = IsOwner;
         }
     }
 }

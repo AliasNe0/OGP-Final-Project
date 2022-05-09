@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class CustomID : MonoBehaviour
+public class CustomID : NetworkBehaviour
 {
-    [SerializeField] public float id;
+    public NetworkVariable<float> id = new NetworkVariable<float>();
 }

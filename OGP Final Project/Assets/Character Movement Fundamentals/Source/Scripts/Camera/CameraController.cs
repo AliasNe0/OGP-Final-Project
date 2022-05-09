@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace CMF
 {
@@ -75,7 +76,10 @@ namespace CMF
 
 		void Update()
 		{
-			HandleCameraRotation();
+			if (gameObject.GetComponentInParent<NetworkObject>().IsOwner)
+			{
+				HandleCameraRotation();
+			}
 		}
 
 		//Get user input and handle camera rotation;

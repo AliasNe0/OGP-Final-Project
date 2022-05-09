@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace CMF
 {
@@ -9,7 +10,6 @@ namespace CMF
     //Custom movement input can be implemented by creating a new script that inherits 'AdvancedWalkerController' and overriding the 'CalculateMovementDirection' function;
     public class AdvancedWalkerController : Controller
     {
-
         //References to attached components;
         protected Transform tr;
         protected Mover mover;
@@ -119,7 +119,10 @@ namespace CMF
 
         void FixedUpdate()
         {
-            ControllerUpdate();
+            if (gameObject.GetComponent<NetworkObject>().IsOwner)
+            {
+                ControllerUpdate();
+            }
         }
 
         //Update controller;
@@ -155,7 +158,7 @@ namespace CMF
             //This enables the player to walk up/down stairs and slopes without losing ground contact;
             mover.SetExtendSensorRange(IsGrounded());
 
-            //Set mover velocity;		
+            //Set mover velocity;
             mover.SetVelocity(_velocity);
 
             //Store velocity for next frame;

@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
+using Unity.Netcode.Samples;
 
-public class DeathSentence : MonoBehaviour
+public class DeathSentence : NetworkBehaviour
 {
     [Tooltip("Elevation on which the player will die")]
     [SerializeField] private float deathElevation = -10f;
     [SerializeField] private float deathLength = 2f;
     [SerializeField] public PlayerState playerState = PlayerState.Alive;
-    private Vector3 defaultPosition;
+    public Transform defaultTransform;
 
     public enum PlayerState
     {
@@ -16,18 +18,22 @@ public class DeathSentence : MonoBehaviour
         Dead
     }
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
-        defaultPosition = transform.position;
         playerState = PlayerState.Dead;
     }
 
     private void Update()
     {
-        if (transform.position.y < deathElevation)
+        if (gameObject.GetComponentInParent<NetworkObject>().IsOwner)
         {
-            playerState = PlayerState.Dead;
-            transform.position = defaultPosition;
+            if (transform.position.y < deathElevation)
+            {
+                float id = gameObject.GetComponent<CustomID>().id.Value;
+                defaultTransform = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform;
+                playerState = PlayerState.Dead;
+                gameObject.GetComponent<ClientNetworkTransform>().Teleport(defaultTransform.position, defaultTransform.localRotation, defaultTransform.localScale);
+            }
         }
     }
 }

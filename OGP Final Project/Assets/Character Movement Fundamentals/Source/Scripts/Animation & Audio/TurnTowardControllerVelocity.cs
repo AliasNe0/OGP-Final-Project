@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace CMF
 {
@@ -40,55 +41,57 @@ namespace CMF
 		}
 
 		void LateUpdate () {
+			if (gameObject.GetComponentInParent<NetworkObject>().IsOwner)
+			{
+				//Get controller velocity;
+				Vector3 _velocity;
+				if (ignoreControllerMomentum)
+					_velocity = controller.GetMovementVelocity();
+				else
+					_velocity = controller.GetVelocity();
 
-			//Get controller velocity;
-			Vector3 _velocity;
-			if(ignoreControllerMomentum)
-				_velocity = controller.GetMovementVelocity();
-			else
-				_velocity = controller.GetVelocity();
+				//Project velocity onto a plane defined by the 'up' direction of the parent transform;
+				_velocity = Vector3.ProjectOnPlane(_velocity, parentTransform.up);
 
-			//Project velocity onto a plane defined by the 'up' direction of the parent transform;
-			_velocity = Vector3.ProjectOnPlane(_velocity, parentTransform.up);
+				float _magnitudeThreshold = 0.001f;
 
-			float _magnitudeThreshold = 0.001f;
+				//If the velocity's magnitude is smaller than the threshold, return;
+				if (_velocity.magnitude < _magnitudeThreshold)
+					return;
 
-			//If the velocity's magnitude is smaller than the threshold, return;
-			if(_velocity.magnitude < _magnitudeThreshold)
-				return;
+				//Normalize velocity direction;
+				_velocity.Normalize();
 
-			//Normalize velocity direction;
-			_velocity.Normalize();
+				//Get current 'forward' vector;
+				Vector3 _currentForward = tr.forward;
 
-			//Get current 'forward' vector;
-			Vector3 _currentForward = tr.forward;
+				//Calculate (signed) angle between velocity and forward direction;
+				float _angleDifference = VectorMath.GetAngle(_currentForward, _velocity, parentTransform.up);
 
-			//Calculate (signed) angle between velocity and forward direction;
-			float _angleDifference = VectorMath.GetAngle(_currentForward, _velocity, parentTransform.up);
+				//Calculate angle factor;
+				float _factor = Mathf.InverseLerp(0f, fallOffAngle, Mathf.Abs(_angleDifference));
 
-			//Calculate angle factor;
-			float _factor = Mathf.InverseLerp(0f, fallOffAngle, Mathf.Abs(_angleDifference));
+				//Calculate this frame's step;
+				float _step = Mathf.Sign(_angleDifference) * _factor * Time.deltaTime * turnSpeed;
 
-			//Calculate this frame's step;
-			float _step = Mathf.Sign(_angleDifference) * _factor * Time.deltaTime * turnSpeed;
+				//Clamp step;
+				if (_angleDifference < 0f && _step < _angleDifference)
+					_step = _angleDifference;
+				else if (_angleDifference > 0f && _step > _angleDifference)
+					_step = _angleDifference;
 
-			//Clamp step;
-			if(_angleDifference < 0f && _step < _angleDifference)
-				_step = _angleDifference;
-			else if(_angleDifference > 0f && _step > _angleDifference)
-				_step = _angleDifference;
+				//Add step to current y angle;
+				currentYRotation += _step;
 
-			//Add step to current y angle;
-			currentYRotation += _step;
+				//Clamp y angle;
+				if (currentYRotation > 360f)
+					currentYRotation -= 360f;
+				if (currentYRotation < -360f)
+					currentYRotation += 360f;
 
-			//Clamp y angle;
-			if(currentYRotation > 360f)
-				currentYRotation -= 360f;
-			if(currentYRotation < -360f)
-				currentYRotation += 360f;
-
-			//Set transform rotation using Quaternion.Euler;
-			tr.localRotation = Quaternion.Euler(0f, currentYRotation, 0f);
+				//Set transform rotation using Quaternion.Euler;
+				tr.localRotation = Quaternion.Euler(0f, currentYRotation, 0f);
+			}
 
 		}
 

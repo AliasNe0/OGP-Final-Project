@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 public class GateMover : MonoBehaviour
 {
@@ -31,5 +32,6 @@ public class GateMover : MonoBehaviour
             transform.position = Vector3.Lerp(startPosition, endPosition, travelPercent);
             yield return new WaitForEndOfFrame();
         }
+        gameObject.GetComponent<NetworkObject>().Despawn();
     }
 }

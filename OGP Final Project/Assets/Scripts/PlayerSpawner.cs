@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Netcode.Samples;
 
 public class PlayerSpawner : MonoBehaviour
 {
@@ -58,7 +59,8 @@ public class PlayerSpawner : MonoBehaviour
                     NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
                     no.GetComponent<CustomID>().id.Value = id;
                     //no.GetComponent<OGPA_PlayerMover>().originalColor.Value = GameObject.Find($"Environment/SpawnPoint{(int)id}/Cube").GetComponent<MeshRenderer>().material.color;
-                    no.transform.position = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform.position;
+                    var defaultTransform = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform;
+                    no.GetComponent<ClientNetworkTransform>().Teleport(defaultTransform.position, defaultTransform.localRotation, defaultTransform.localScale);
                     break;
                 }
             }

@@ -8,7 +8,6 @@ public class DeathSentence : NetworkBehaviour
 {
     [Tooltip("Elevation on which the player will die")]
     [SerializeField] private float deathElevation = -10f;
-    [SerializeField] private float deathLength = 2f;
     [SerializeField] public PlayerState playerState = PlayerState.Alive;
     public Transform defaultTransform;
 

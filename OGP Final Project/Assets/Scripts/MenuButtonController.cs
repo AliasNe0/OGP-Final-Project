@@ -3,22 +3,31 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using CMF;
+using UnityEngine.Events;
 
 public class MenuButtonController : MonoBehaviour
 {
     [SerializeField] private GameObject menuUI;
     [SerializeField] private GameObject connectedUI;
     [SerializeField] private GameObject disconnectedUI;
+    [SerializeField] private GameObject timerUI;
+    [SerializeField] private GameObject timerButton;
+    [SerializeField] private UnityEvent StartTimerEvent;
 
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape) && !menuUI.active)
+        if (Input.GetKeyUp(KeyCode.Escape) && !menuUI.activeSelf)
         {
             ShowMenu(true);
-            NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = false;
-            NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = false;
-            NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().useGravity = true;
+            DisableMovements(true);
         }
+    }
+
+    private void DisableMovements(bool disable)
+    {
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = !disable;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = !disable;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().useGravity = disable;
     }
 
     private void ShowMenu(bool showMenu)
@@ -27,12 +36,22 @@ public class MenuButtonController : MonoBehaviour
         Cursor.visible = showMenu;
     }
 
+    public void StartTimer()
+    {
+        StartTimerEvent.Invoke();
+        timerButton.SetActive(false);
+        DisableMovements(false);
+    }
+
+    public void HideTimerUI()
+    {
+        timerUI.SetActive(false);
+    }
+
     public void ContinueGame()
     {
         ShowMenu(false);
-        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = true;
-        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = true;
-        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().useGravity = false;
+        DisableMovements(false);
     }
 
     public void QuitGame()
@@ -54,6 +73,7 @@ public class MenuButtonController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         disconnectedUI.SetActive(true);
         connectedUI.SetActive(false);
+        timerUI.SetActive(false);
         ShowMenu(true);
     }
 
@@ -68,9 +88,12 @@ public class MenuButtonController : MonoBehaviour
     public void StartHost()
     {
         NetworkManager.Singleton.StartHost();
-        ShowMenu(false);
+        menuUI.SetActive(false);
         disconnectedUI.SetActive(false);
         connectedUI.SetActive(true);
+        timerUI.SetActive(true);
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = false;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = false;
     }
 
     public void StartClient()

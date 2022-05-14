@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class GateMover : MonoBehaviour
+public class GateMover : NetworkBehaviour
 {
     [SerializeField] private float movementSpeed = 1f;
     private Vector3 defaultPosition; // default position of the gates
@@ -19,9 +19,12 @@ public class GateMover : MonoBehaviour
 
     public void OpenGates()
     {
-        Vector3 startPosition = defaultPosition;
-        Vector3 endPosition = targetPosition;
-        StartCoroutine(FollowPath(startPosition, endPosition));
+        if (IsServer)
+        {
+            Vector3 startPosition = defaultPosition;
+            Vector3 endPosition = targetPosition;
+            StartCoroutine(FollowPath(startPosition, endPosition));
+        }
     }
     IEnumerator FollowPath(Vector3 startPosition, Vector3 endPosition)
     {

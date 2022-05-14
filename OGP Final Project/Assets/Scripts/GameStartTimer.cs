@@ -3,54 +3,89 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
+using Unity.Netcode;
 
-public class GameStartTimer : MonoBehaviour
+public class GameStartTimer : NetworkBehaviour
 {
     [SerializeField] private UnityEvent timerEndEvent;
     [SerializeField] private UnityEvent timerHideEvent;
     [SerializeField] private float startGameTimer = 5f;
     [SerializeField] private TMP_Text TMPtext;
-    private float currentTime;
-    private bool timerActive = false;
+    public NetworkVariable<float> timerValue = new NetworkVariable<float>();
+    public NetworkVariable<bool> timerActive = new NetworkVariable<bool>();
+    private float seconds = 0f;
+    bool tickingActive = true;
 
     private void Start()
     {
-        currentTime = startGameTimer + 0.5f;
         TMPtext.text = "";
+        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
     }
 
-    void Update()
+    private void OnServerStarted()
     {
-        if (timerActive)
+        if (IsHost)
         {
-            currentTime -= Time.deltaTime;
-            TMPtext.text = currentTime.ToString("f0");
-            if (currentTime <= 0.5f)
-            {
-                timerEndEvent.Invoke();
-                StartCoroutine(EndTimer());
-                timerActive = false;
-            }
+            timerActive.Value = false;
+            timerValue.Value = startGameTimer;
         }
-    }
-
-    IEnumerator EndTimer()
-    {
-        TMPtext.text = "GO!";
-        yield return new WaitForSeconds(2f);
-        timerHideEvent.Invoke();
-        currentTime = 0f;
     }
 
     public void StartGameTimer()
     {
-        StartCoroutine(StartTimer());
+        if (IsHost)
+        {
+            Cursor.visible = false;
+            timerActive.Value = true;
+        }
     }
 
-    IEnumerator StartTimer()
+    void Update()
     {
-        Cursor.visible = false;
-        yield return new WaitForSeconds(1f);
-        timerActive = true;
+        if (timerActive.Value)
+        {
+            if (IsHost && tickingActive)
+            {
+                if ((timerValue.Value == startGameTimer - seconds) && timerValue.Value > 0f)
+                {
+                    tickingActive = false;
+                    TMPtext.text = timerValue.Value.ToString();
+                    StartCoroutine(TickingTimer());
+                }
+                if (timerValue.Value <= 0f)
+                {
+                    TMPtext.text = "GO!";
+                    StartCoroutine(EndTimer());
+                    timerEndEvent.Invoke();
+                    timerActive.Value = false;
+                }
+            }
+            if (IsClient)
+            {
+                if (timerValue.Value > 0f)
+                    TMPtext.text = timerValue.Value.ToString();
+                if (timerValue.Value <= 0f)
+                {
+                    TMPtext.text = "GO!";
+                    StartCoroutine(EndTimer());
+                }
+
+            }
+        }
+    }
+
+    IEnumerator TickingTimer()
+    {
+        float tick = 1f;
+        yield return new WaitForSeconds(tick);
+        seconds += tick;
+        timerValue.Value -= tick;
+        tickingActive = true;
+    }
+
+    IEnumerator EndTimer()
+    {
+        yield return new WaitForSeconds(2f);
+        timerHideEvent.Invoke();
     }
 }

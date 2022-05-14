@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using CMF;
 using UnityEngine.Events;
 
-public class MenuButtonController : MonoBehaviour
+public class UIButtonController : MonoBehaviour
 {
     [SerializeField] private GameObject menuUI;
     [SerializeField] private GameObject connectedUI;
@@ -99,9 +99,11 @@ public class MenuButtonController : MonoBehaviour
     public void StartClient()
     {
         NetworkManager.Singleton.StartClient();
-        ShowMenu(false);
         disconnectedUI.SetActive(false);
         connectedUI.SetActive(true);
+        timerButton.SetActive(false);
+        timerUI.SetActive(true);
+        ShowMenu(false);
     }
 
     public void Disconnect()

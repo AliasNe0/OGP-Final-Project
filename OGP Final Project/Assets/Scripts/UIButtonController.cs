@@ -4,15 +4,22 @@ using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using CMF;
 using UnityEngine.Events;
+using TMPro;
 
-public class UIButtonController : MonoBehaviour
+public class UIButtonController : NetworkBehaviour
 {
     [SerializeField] private GameObject menuUI;
     [SerializeField] private GameObject connectedUI;
     [SerializeField] private GameObject disconnectedUI;
-    [SerializeField] private GameObject timerUI;
-    [SerializeField] private GameObject timerButton;
-    [SerializeField] private UnityEvent StartTimerEvent;
+    [SerializeField] private GameObject firstTimerUI;
+    [SerializeField] private GameObject firstTimerButton;
+    [SerializeField] private GameObject secondTimerUI;
+    [SerializeField] private GameObject gameplayUI;
+    [SerializeField] private GameObject playerUI;
+    [SerializeField] private TMP_Text playerNameText;
+    [SerializeField] private TMP_Text winnerText;
+    [SerializeField] private UnityEvent TimerButtonEvent;
+    public NetworkVariable<bool> gameEnded = new NetworkVariable<bool>();
 
     private void Update()
     {
@@ -20,7 +27,7 @@ public class UIButtonController : MonoBehaviour
         {
             ShowMenu(true);
             DisableMovements(true);
-            timerButton.SetActive(false);
+            firstTimerButton.SetActive(false);
         }
     }
 
@@ -33,27 +40,37 @@ public class UIButtonController : MonoBehaviour
 
     private void ShowMenu(bool showMenu)
     {
-        menuUI.SetActive(showMenu);
-        Cursor.visible = showMenu;
+        if (!gameEnded.Value)
+        {
+            menuUI.SetActive(showMenu);
+            playerUI.SetActive(!showMenu);
+            Cursor.visible = showMenu;
+        }
     }
 
-    public void StartTimer()
+    public void StartGame()
     {
-        StartTimerEvent.Invoke();
-        timerButton.SetActive(false);
+        TimerButtonEvent.Invoke();
+        firstTimerButton.SetActive(false);
         DisableMovements(false);
     }
 
-    public void HideTimerUI()
+    public void HideFirstTimerUI()
     {
-        timerUI.SetActive(false);
+        firstTimerUI.SetActive(false);
+    }
+    public void HideSecondTimerUI()
+    {
+        secondTimerUI.SetActive(false);
+        if (IsHost)
+            gameEnded.Value = true;
     }
 
     public void ContinueGame()
     {
         ShowMenu(false);
         DisableMovements(false);
-        timerButton.SetActive(true);
+        firstTimerButton.SetActive(true);
     }
 
     public void QuitGame()
@@ -61,6 +78,21 @@ public class UIButtonController : MonoBehaviour
         Disconnect();
         Debug.Log("QUIT!");
         Application.Quit();
+    }
+
+    public void ShowResults()
+    {
+        UpdateWinnerText();
+        gameplayUI.SetActive(true);
+        DisableMovements(true);
+        Cursor.visible = true;
+    }
+
+    private void UpdateWinnerText()
+    {
+        float id = ScoreBoard.Singleton.FindWinner().Key;
+        float score = ScoreBoard.Singleton.FindWinner().Value;
+        winnerText.text = $"Winner is Player{id} with score {score}";
     }
 
 #if UNITY_SERVER && !UNITY_EDITOR
@@ -75,8 +107,11 @@ public class UIButtonController : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         disconnectedUI.SetActive(true);
         connectedUI.SetActive(false);
-        timerUI.SetActive(false);
+        firstTimerUI.SetActive(false);
+        gameplayUI.SetActive(false);
         ShowMenu(true);
+        gameEnded.Value = false;
+        playerNameText.text = "";
     }
 
     private void OnClientDisconnectCallback(ulong clientID)
@@ -93,8 +128,11 @@ public class UIButtonController : MonoBehaviour
         menuUI.SetActive(false);
         disconnectedUI.SetActive(false);
         connectedUI.SetActive(true);
-        timerUI.SetActive(true);
+        firstTimerUI.SetActive(true);
+        playerUI.SetActive(true);
         DisableMovements(true);
+        NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId);
+        playerNameText.text = $"Player{no.GetComponent<PlayerAttributes>().playerID.Value}";
     }
 
     public void StartClient()
@@ -102,18 +140,21 @@ public class UIButtonController : MonoBehaviour
         NetworkManager.Singleton.StartClient();
         disconnectedUI.SetActive(false);
         connectedUI.SetActive(true);
-        timerButton.SetActive(false);
-        timerUI.SetActive(true);
+        firstTimerButton.SetActive(false);
+        firstTimerUI.SetActive(true);
         ShowMenu(false);
+        StartCoroutine(PlayerNameDelayTimer());
+    }
+
+    IEnumerator PlayerNameDelayTimer()
+    {
+        yield return new WaitForSeconds(0.5f);
+        NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId);
+        playerNameText.text = $"Player{no.GetComponent<PlayerAttributes>().playerID.Value}";
     }
 
     public void Disconnect()
     {
-        //if (NetworkManager.Singleton.IsHost)
-        //{
-        //    NetworkManager.Singleton.GetComponent<PlayerSpawner>().playerCount.Value = 0f;
-        //    NetworkManager.Singleton.GetComponent<CollectibleSpawner>().collectibleCount.Value = 0f;
-        //}
         NetworkManager.Singleton.Shutdown();
         SceneManager.LoadScene(0);
     }

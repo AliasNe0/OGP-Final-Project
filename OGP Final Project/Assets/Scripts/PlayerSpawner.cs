@@ -60,7 +60,7 @@ public class PlayerSpawner : MonoBehaviour
                     playerList.Add(id);
                     playerCount.Value++;
                     NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
-                    no.GetComponent<CustomID>().playerID.Value = id;
+                    no.GetComponent<PlayerAttributes>().playerID.Value = id;
                     //no.GetComponent<OGPA_PlayerMover>().originalColor.Value = GameObject.Find($"Environment/SpawnPoint{(int)id}/Cube").GetComponent<MeshRenderer>().material.color;
                     var defaultTransform = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform;
                     no.GetComponent<ClientNetworkTransform>().Teleport(defaultTransform.position, defaultTransform.localRotation, defaultTransform.localScale);
@@ -75,7 +75,7 @@ public class PlayerSpawner : MonoBehaviour
         if (NetworkManager.Singleton.IsHost)
         {
             NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
-            float id = no.GetComponent<CustomID>().playerID.Value;
+            float id = no.GetComponent<PlayerAttributes>().playerID.Value;
             playerList.Remove(id);
             playerCount.Value--;
         }

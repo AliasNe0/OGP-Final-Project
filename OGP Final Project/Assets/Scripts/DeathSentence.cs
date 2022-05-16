@@ -28,7 +28,7 @@ public class DeathSentence : NetworkBehaviour
         {
             if (transform.position.y < deathElevation)
             {
-                float id = gameObject.GetComponent<CustomID>().playerID.Value;
+                float id = gameObject.GetComponent<PlayerAttributes>().playerID.Value;
                 defaultTransform = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform;
                 playerState = PlayerState.Dead;
                 gameObject.GetComponent<ClientNetworkTransform>().Teleport(defaultTransform.position, defaultTransform.localRotation, defaultTransform.localScale);

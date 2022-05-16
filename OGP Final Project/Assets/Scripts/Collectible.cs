@@ -18,6 +18,8 @@ public class Collectible : NetworkBehaviour
     //[SerializeField] GameObject collectibleFX;
     //GameObject parentGameObject;
 
+    [SerializeField] private float scoreIncrement = 5f;
+
     private void Start()
     {
         startingPos = transform.position;
@@ -50,14 +52,20 @@ public class Collectible : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && IsServer)
+        if (other.CompareTag("Player"))
         {
-            //GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
-            //vfx.transform.parent = parentGameObject.transform;
-
-            CollectibleSpawner.Singleton.spawnPointList.Add(gameObject);
-            gameObject.GetComponent<NetworkObject>().Despawn();
-            CollectibleSpawner.Singleton.collectibleCount.Value--;
+            PlayerAttributes playerAttributes = other.GetComponent<PlayerAttributes>();
+            if (IsServer)
+            {
+                //GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
+                //vfx.transform.parent = parentGameObject.transform;
+                if (!CollectibleSpawner.Singleton.spawnPointList.Contains(transform.parent.gameObject))
+                    CollectibleSpawner.Singleton.spawnPointList.Add(transform.parent.gameObject);
+                gameObject.GetComponent<NetworkObject>().Despawn();
+                CollectibleSpawner.Singleton.collectibleCount.Value--;
+                playerAttributes.playerScore.Value += scoreIncrement;
+            }
+            playerAttributes.UpdateScoreText();
         }
     }
 }

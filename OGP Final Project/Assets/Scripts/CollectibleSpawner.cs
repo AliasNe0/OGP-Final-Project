@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 
 public class CollectibleSpawner : NetworkBehaviour
 {
@@ -11,6 +10,7 @@ public class CollectibleSpawner : NetworkBehaviour
     public NetworkVariable<float> collectibleCount = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone);
     private GameObject[] spawnPointsArray;
     public List<GameObject> spawnPointList = new();
+    private bool spawning = false;
 
     static CollectibleSpawner _instance;
     public static CollectibleSpawner Singleton { get { return _instance; } }
@@ -29,10 +29,10 @@ public class CollectibleSpawner : NetworkBehaviour
 
     private void Start()
     {
-        NetworkManager.Singleton.OnServerStarted += OnServerStart;
+        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
     }
 
-    private void OnServerStart()
+    private void OnServerStarted()
     {
         spawnPointsArray = GameObject.FindGameObjectsWithTag("CollectibleSpawnPoint");
         foreach (GameObject spawnPoint in spawnPointsArray)
@@ -45,24 +45,33 @@ public class CollectibleSpawner : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsHost)
         {
-            if (spawnPointList.Count > 0 && collectibleCount.Value < collectibleLimit)
+            if (!spawning && spawnPointList.Count > 0 && collectibleCount.Value < collectibleLimit)
             {
-                NetworkObject no = NetworkObjectPool.Singleton.GetNetworkObject(collectiblePrefab);
-                Transform spawnPointTransform = GetRandomSpawnPointPosition();
-                no.transform.position = spawnPointTransform.position;
-                no.transform.rotation = spawnPointTransform.localRotation;
-                no.Spawn();
-                //no.GetComponent<NetworkTransform>().Teleport(spawnPointTransform.position, spawnPointTransform.localRotation, spawnPointTransform.localScale);
-                collectibleCount.Value++;
+                spawning = true;
+                StartCoroutine(CollectibleSpawnTimer());
             }
         }
+    }
+
+    IEnumerator CollectibleSpawnTimer()
+    {
+        yield return new WaitForSeconds(3f);
+        NetworkObject no = NetworkObjectPool.Singleton.GetNetworkObject(collectiblePrefab);
+        Transform spawnPointTransform = GetRandomSpawnPointPosition();
+        no.transform.position = spawnPointTransform.position;
+        no.transform.rotation = spawnPointTransform.localRotation;
+        no.Spawn();
+        no.transform.parent = spawnPointTransform;
+        //no.GetComponent<NetworkTransform>().Teleport(spawnPointTransform.position, spawnPointTransform.localRotation, spawnPointTransform.localScale);
+        collectibleCount.Value++;
+        spawning = false;
     }
 
     private Transform GetRandomSpawnPointPosition()
     {
         int index = Random.Range(0, spawnPointList.Count);
         GameObject spawnPoint = spawnPointList[index];
-        spawnPointList.RemoveAt(index);
+        spawnPointList.Remove(spawnPoint);
         return spawnPoint.transform;
     }
 }

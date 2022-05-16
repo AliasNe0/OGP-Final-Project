@@ -14,7 +14,8 @@ public class GameStartTimer : NetworkBehaviour
     public NetworkVariable<float> timerValue = new NetworkVariable<float>();
     public NetworkVariable<bool> timerActive = new NetworkVariable<bool>();
     private float seconds = 0f;
-    bool tickingActive = true;
+    private bool tickingActive = false;
+    private bool lastTickDone = false;
 
     private void Start()
     {
@@ -37,6 +38,7 @@ public class GameStartTimer : NetworkBehaviour
         {
             Cursor.visible = false;
             timerActive.Value = true;
+            tickingActive = true;
         }
     }
 
@@ -52,24 +54,24 @@ public class GameStartTimer : NetworkBehaviour
                     TMPtext.text = timerValue.Value.ToString();
                     StartCoroutine(TickingTimer());
                 }
-                if (timerValue.Value <= 0f)
+                if (timerValue.Value == 0f && !lastTickDone)
                 {
+                    lastTickDone = true;
                     TMPtext.text = "GO!";
-                    StartCoroutine(EndTimer());
+                    StartCoroutine(HideTimer());
+                    StartCoroutine(DisableTimer());
                     timerEndEvent.Invoke();
-                    timerActive.Value = false;
                 }
             }
             if (IsClient)
             {
                 if (timerValue.Value > 0f)
                     TMPtext.text = timerValue.Value.ToString();
-                if (timerValue.Value <= 0f)
+                if (timerValue.Value == 0f)
                 {
                     TMPtext.text = "GO!";
-                    StartCoroutine(EndTimer());
+                    StartCoroutine(HideTimer());
                 }
-
             }
         }
     }
@@ -83,7 +85,14 @@ public class GameStartTimer : NetworkBehaviour
         tickingActive = true;
     }
 
-    IEnumerator EndTimer()
+    IEnumerator DisableTimer()
+    {
+        yield return new WaitForSeconds(1f);
+        timerHideEvent.Invoke();
+        timerActive.Value = false;
+    }
+
+    IEnumerator HideTimer()
     {
         yield return new WaitForSeconds(2f);
         timerHideEvent.Invoke();

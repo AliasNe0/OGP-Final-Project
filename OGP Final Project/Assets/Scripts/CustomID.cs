@@ -3,5 +3,5 @@ using Unity.Netcode;
 
 public class CustomID : NetworkBehaviour
 {
-    public NetworkVariable<float> id = new NetworkVariable<float>();
+    public NetworkVariable<float> playerID = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone);
 }

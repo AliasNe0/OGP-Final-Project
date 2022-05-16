@@ -48,21 +48,16 @@ public class Collectible : NetworkBehaviour
         transform.position = startingPos + offset;
     }
 
-    // Enables a corresponding letter in UI Canvas
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && IsServer)
         {
-            Collect();
-        }
-    }
+            //GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
+            //vfx.transform.parent = parentGameObject.transform;
 
-    // Pick up sound played
-    // Destroys the gameObject if collided with a player object
-    private void Collect()
-    {
-        //GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
-        //vfx.transform.parent = parentGameObject.transform;
-        gameObject.GetComponent<NetworkObject>().Despawn();
+            CollectibleSpawner.Singleton.spawnPointList.Add(gameObject);
+            gameObject.GetComponent<NetworkObject>().Despawn();
+            CollectibleSpawner.Singleton.collectibleCount.Value--;
+        }
     }
 }

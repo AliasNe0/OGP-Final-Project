@@ -20,6 +20,7 @@ public class UIButtonController : MonoBehaviour
         {
             ShowMenu(true);
             DisableMovements(true);
+            timerButton.SetActive(false);
         }
     }
 
@@ -27,7 +28,7 @@ public class UIButtonController : MonoBehaviour
     {
         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = !disable;
         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = !disable;
-        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().useGravity = disable;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<Rigidbody>().isKinematic = disable;
     }
 
     private void ShowMenu(bool showMenu)
@@ -52,6 +53,7 @@ public class UIButtonController : MonoBehaviour
     {
         ShowMenu(false);
         DisableMovements(false);
+        timerButton.SetActive(true);
     }
 
     public void QuitGame()
@@ -92,8 +94,7 @@ public class UIButtonController : MonoBehaviour
         disconnectedUI.SetActive(false);
         connectedUI.SetActive(true);
         timerUI.SetActive(true);
-        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponent<AdvancedWalkerController>().enabled = false;
-        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<CameraController>().enabled = false;
+        DisableMovements(true);
     }
 
     public void StartClient()
@@ -108,6 +109,11 @@ public class UIButtonController : MonoBehaviour
 
     public void Disconnect()
     {
+        //if (NetworkManager.Singleton.IsHost)
+        //{
+        //    NetworkManager.Singleton.GetComponent<PlayerSpawner>().playerCount.Value = 0f;
+        //    NetworkManager.Singleton.GetComponent<CollectibleSpawner>().collectibleCount.Value = 0f;
+        //}
         NetworkManager.Singleton.Shutdown();
         SceneManager.LoadScene(0);
     }

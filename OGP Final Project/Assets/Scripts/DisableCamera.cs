@@ -7,7 +7,9 @@ public class DisableCamera : NetworkBehaviour
 {   
     public override void OnNetworkSpawn()
     {
-        if (gameObject.GetComponent<NetworkObject>().IsOwner == false)
+        if (IsOwner)
+            GameObject.Find("MenuCamera").SetActive(false);
+        if (!IsOwner)
         {
             gameObject.GetComponentInChildren<Camera>().enabled = false;
             gameObject.GetComponentInChildren<AudioListener>().enabled = false;

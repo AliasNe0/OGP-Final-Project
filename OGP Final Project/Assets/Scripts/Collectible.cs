@@ -55,6 +55,7 @@ public class Collectible : NetworkBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerAttributes playerAttributes = other.GetComponent<PlayerAttributes>();
+            playerAttributes.UpdateScore(scoreIncrement);
             if (IsServer)
             {
                 //GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
@@ -63,9 +64,9 @@ public class Collectible : NetworkBehaviour
                     CollectibleSpawner.Singleton.spawnPointList.Add(transform.parent.gameObject);
                 gameObject.GetComponent<NetworkObject>().Despawn();
                 CollectibleSpawner.Singleton.collectibleCount.Value--;
-                playerAttributes.playerScore.Value += scoreIncrement;
+                //playerAttributes.playerScore.Value += scoreIncrement;
             }
-            playerAttributes.UpdateScoreText();
+            //playerAttributes.UpdateScoreText();
         }
     }
 }

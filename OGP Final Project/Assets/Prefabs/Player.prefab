@@ -246,6 +246,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerID:
     m_InternalValue: 0
+  playerScore:
+    m_InternalValue: 0
 --- !u!114 &652589346425475686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,7 +361,7 @@ MonoBehaviour:
   useAnimationBasedFootsteps: 1
   landVelocityThreshold: 5
   footstepDistance: 3
-  audioClipVolume: 0.2
+  audioClipVolume: 1
   relativeRandomizedVolumeRange: 0.2
   footStepClips:
   - {fileID: 8300000, guid: 7341ba07f02fa6941b16a463ddd73f99, type: 3}
@@ -647,7 +649,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0

@@ -14,9 +14,25 @@ public class PlayerAttributes : NetworkBehaviour
         playerScoreText = GameObject.Find($"Canvas/PlayerUI/PlayerScore").GetComponent<TMP_Text>();
     }
 
-    public void UpdateScoreText()
+    public void UpdateScore(float scoreIncrement)
+    {
+        if (IsOwner)
+        {
+            UpdateScoreValueServerRpc(scoreIncrement);
+            UpdateScoreText();
+        }
+    }
+
+    [ServerRpc]
+    private void UpdateScoreValueServerRpc(float scoreIncrement)
+    {
+        playerScore.Value += scoreIncrement;
+    }
+
+    private void UpdateScoreText()
     {
         StartCoroutine(PlayerScoreDelayTimer());
+            playerScoreText.text = $"Score: {playerScore.Value}";
     }
 
     IEnumerator PlayerScoreDelayTimer()

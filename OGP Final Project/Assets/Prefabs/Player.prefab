@@ -168,6 +168,8 @@ GameObject:
   - component: {fileID: 4095570033422622}
   - component: {fileID: 136179175772395822}
   - component: {fileID: 54247263789400272}
+  - component: {fileID: 8033904419638625234}
+  - component: {fileID: 9113259844668068139}
   - component: {fileID: 8474427599563824741}
   - component: {fileID: 652589346425475686}
   - component: {fileID: 114808892733143080}
@@ -232,6 +234,39 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!95 &8033904419638625234
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1189618843407812}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 234e7bec653fac142bf894a76905e1ac, type: 3}
+  m_Controller: {fileID: 9100000, guid: 568cf4cd0dc9cb848821933ae06d9566, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &9113259844668068139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1189618843407812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Animator: {fileID: 8033904419638625234}
 --- !u!114 &8474427599563824741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,6 +345,8 @@ MonoBehaviour:
   jumpDuration: 0.2
   airFriction: 0.5
   groundFriction: 100
+  savedVelocity:
+    m_InternalValue: {x: 0, y: 0, z: 0}
   gravity: 30
   slideGravity: 5
   slopeLimit: 80
@@ -581,7 +618,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1332926116538938}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: 234e7bec653fac142bf894a76905e1ac, type: 3}
   m_Controller: {fileID: 9100000, guid: 568cf4cd0dc9cb848821933ae06d9566, type: 2}
   m_CullingMode: 1

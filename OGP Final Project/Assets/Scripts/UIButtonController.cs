@@ -86,6 +86,7 @@ public class UIButtonController : NetworkBehaviour
         gameplayUI.SetActive(true);
         DisableMovements(true);
         Cursor.visible = true;
+        NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<AudioControl>().enabled = false;
     }
 
     private void UpdateWinnerText()

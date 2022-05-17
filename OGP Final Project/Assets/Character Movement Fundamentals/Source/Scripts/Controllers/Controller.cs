@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 namespace CMF
 {
 	//This abstract class is the base for all other controller components (such as 'AdvancedWalkerController');
 	//It can be extended to create a custom controller class;
-	public abstract class Controller : MonoBehaviour {
+	public abstract class Controller : NetworkBehaviour {
 
 		//Getters;
 		public abstract Vector3 GetVelocity();

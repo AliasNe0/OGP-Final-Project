@@ -15,7 +15,9 @@ public class GameTimers : NetworkBehaviour
     private bool firstTickingActive = false;
     private bool firstTimerLastTickDone = false;
     [SerializeField] private UnityEvent firstTimerEndEvent;
+    [SerializeField] private UnityEvent firstTimerStartGameplayAudionEvent;
     [SerializeField] private UnityEvent firstTimerHideEvent;
+    [SerializeField] private AudioSource firstTimerCountdownAudioSource;
 
     [SerializeField] private float secondTimerLength = 30f;
     [SerializeField] private TMP_Text secondTimerText;
@@ -80,6 +82,7 @@ public class GameTimers : NetworkBehaviour
                 {
                     firstTickingActive = false;
                     firstTimerText.text = firstTimerValue.Value.ToString();
+                    PlayCountDownClientRpc();
                     StartCoroutine(FirstTimerTickTimer());
                 }
                 if (firstTimerValue.Value == 0f && !firstTimerLastTickDone)
@@ -99,10 +102,17 @@ public class GameTimers : NetworkBehaviour
                 if (firstTimerValue.Value == 0f)
                 {
                     firstTimerText.text = "GO!";
+                    firstTimerStartGameplayAudionEvent.Invoke();
                     StartCoroutine(HideFirstTimer());
                 }
             }
         }
+    }
+
+    [ClientRpc]
+    private void PlayCountDownClientRpc()
+    {
+        firstTimerCountdownAudioSource.Play();
     }
 
     IEnumerator FirstTimerTickTimer()

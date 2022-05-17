@@ -61,7 +61,6 @@ public class PlayerSpawner : MonoBehaviour
                     playerCount.Value++;
                     NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
                     no.GetComponent<PlayerAttributes>().playerID.Value = id;
-                    //no.GetComponent<OGPA_PlayerMover>().originalColor.Value = GameObject.Find($"Environment/SpawnPoint{(int)id}/Cube").GetComponent<MeshRenderer>().material.color;
                     var defaultTransform = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform;
                     no.GetComponent<ClientNetworkTransform>().Teleport(defaultTransform.position, defaultTransform.localRotation, defaultTransform.localScale);
                     break;

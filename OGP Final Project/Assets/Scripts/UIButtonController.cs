@@ -18,7 +18,10 @@ public class UIButtonController : NetworkBehaviour
     [SerializeField] private GameObject playerUI;
     [SerializeField] private TMP_Text playerNameText;
     [SerializeField] private TMP_Text winnerText;
-    [SerializeField] private UnityEvent TimerButtonEvent;
+    [SerializeField] private UnityEvent timerButtonEvent;
+    [SerializeField] private GameObject menuAudio;
+    [SerializeField] private GameObject gameplayAudio;
+
     public NetworkVariable<bool> gameEnded = new NetworkVariable<bool>();
 
     private void Update()
@@ -50,12 +53,25 @@ public class UIButtonController : NetworkBehaviour
 
     public void StartGame()
     {
-        TimerButtonEvent.Invoke();
+        timerButtonEvent.Invoke();
         firstTimerButton.SetActive(false);
         DisableMovements(false);
+        if (IsHost)
+            DisableMenuAudioClientRpc();
     }
 
-    public void HideFirstTimerUI()
+    [ClientRpc]
+    private void DisableMenuAudioClientRpc()
+    {
+            menuAudio.SetActive(false);
+    }
+
+    public void StartGameplayAudio()
+    {
+        gameplayAudio.SetActive(true);
+    }
+
+        public void HideFirstTimerUI()
     {
         firstTimerUI.SetActive(false);
     }
@@ -85,6 +101,8 @@ public class UIButtonController : NetworkBehaviour
         UpdateWinnerText();
         gameplayUI.SetActive(true);
         DisableMovements(true);
+        menuAudio.SetActive(true);
+        gameplayAudio.SetActive(false);
         Cursor.visible = true;
         NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(NetworkManager.Singleton.LocalClientId).GetComponentInChildren<AudioControl>().enabled = false;
     }
@@ -105,6 +123,7 @@ public class UIButtonController : NetworkBehaviour
     private void Start()
     {
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectCallback;
+        gameplayAudio.SetActive(false);
         Cursor.lockState = CursorLockMode.None;
         disconnectedUI.SetActive(true);
         connectedUI.SetActive(false);
@@ -157,6 +176,7 @@ public class UIButtonController : NetworkBehaviour
     public void Disconnect()
     {
         NetworkManager.Singleton.Shutdown();
+        Destroy(GameObject.Find("NetworkManager"));
         SceneManager.LoadScene(0);
     }
 }

@@ -14,16 +14,16 @@ public class Collectible : NetworkBehaviour
     [Tooltip("Movement period")]
     [SerializeField] float period = 5f;
     Vector3 startingPos;
-    //[Tooltip("Sound played when a letter is collected")]
-    //[SerializeField] GameObject collectibleFX;
-    //GameObject parentGameObject;
+    [Tooltip("Sound played when a letter is collected")]
+    [SerializeField] GameObject collectibleFX;
+    GameObject parentGameObject;
 
     [SerializeField] private float scoreIncrement = 5f;
 
-    private void Start()
+    public override void OnNetworkSpawn()
     {
         startingPos = transform.position;
-        //parentGameObject = GameObject.FindWithTag("SpawnAtRuntime");
+        parentGameObject = GameObject.Find("SpawnAtRuntime");
     }
 
     void Update()
@@ -58,15 +58,16 @@ public class Collectible : NetworkBehaviour
             playerAttributes.UpdateScore(scoreIncrement);
             if (IsServer)
             {
-                //GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
-                //vfx.transform.parent = parentGameObject.transform;
                 if (!CollectibleSpawner.Singleton.spawnPointList.Contains(transform.parent.gameObject))
                     CollectibleSpawner.Singleton.spawnPointList.Add(transform.parent.gameObject);
                 gameObject.GetComponent<NetworkObject>().Despawn();
                 CollectibleSpawner.Singleton.collectibleCount.Value--;
-                //playerAttributes.playerScore.Value += scoreIncrement;
             }
-            //playerAttributes.UpdateScoreText();
+            if (other.GetComponent<NetworkObject>().IsOwner)
+            {
+                GameObject vfx = Instantiate(collectibleFX, transform.position, Quaternion.identity);
+                vfx.transform.parent = parentGameObject.transform;
+            }
         }
     }
 }

@@ -116,6 +116,8 @@ MonoBehaviour:
   rotationSpeed: 50
   movementVector: {x: 0, y: 0.4, z: 0}
   period: 5
+  collectibleFX: {fileID: 1066476420895496863, guid: 2a0e3fd3db5acb347a09283c865cd24b, type: 3}
+  scoreIncrement: 5
 --- !u!114 &4184930472008862413
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -61,7 +61,7 @@ public class PlayerSpawner : MonoBehaviour
                     playerCount.Value++;
                     NetworkObject no = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientID);
                     no.GetComponent<PlayerAttributes>().playerID.Value = id;
-                    var defaultTransform = GameObject.Find($"Environment/SpawnPoint{(int)id}").transform;
+                    var defaultTransform = GameObject.Find($"SpawnPoints/SpawnPoint{(int)id}").transform;
                     no.GetComponent<ClientNetworkTransform>().Teleport(defaultTransform.position, defaultTransform.localRotation, defaultTransform.localScale);
                     break;
                 }

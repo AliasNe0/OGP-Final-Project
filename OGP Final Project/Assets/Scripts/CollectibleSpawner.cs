@@ -39,6 +39,19 @@ public class CollectibleSpawner : NetworkBehaviour
         {
             spawnPointList.Add(spawnPoint);
         }
+        if (IsHost && spawnPointList.Count > 0 && collectibleCount.Value < collectibleLimit)
+        {
+            for (int i = 0; i < collectibleLimit; i++)
+            {
+                NetworkObject no = NetworkObjectPool.Singleton.GetNetworkObject(collectiblePrefab);
+                Transform spawnPointTransform = GetRandomSpawnPointPosition();
+                no.transform.position = spawnPointTransform.position;
+                no.transform.rotation = spawnPointTransform.localRotation;
+                no.Spawn();
+                no.transform.parent = spawnPointTransform;
+                collectibleCount.Value++;
+            }
+        }
     }
 
     private void FixedUpdate()

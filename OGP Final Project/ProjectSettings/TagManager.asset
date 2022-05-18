@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - CollectibleSpawnPoint
+  - SpeedBoostTrigger
+  - JumpTrigger
   layers:
   - Default
   - TransparentFX

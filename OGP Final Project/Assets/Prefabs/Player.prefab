@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 6174655149771483781}
   - component: {fileID: 4522490306397845828}
   - component: {fileID: 4054213178247541177}
+  - component: {fileID: 2493542699824757600}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -341,6 +342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f5e44db14072ea4c964da3b192181c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpKeyWasPressed: 0
+  jumpKeyIsPressed: 0
   movementSpeed: 7
   airControlRate: 2
   jumpSpeed: 10
@@ -476,6 +479,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   thisPlayerCamera: {fileID: 20521951331922788}
   players: []
+--- !u!114 &2493542699824757600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1189618843407812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89bbbd14dbba06c41a6e1a8b64a66cc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speedBoostLength: 3
+  speedBoostMultiplier: 2
+  jumpMultiplier: 2
+  jumpLength: 0.2
+  playerSpeedBoostState: 1
+  playerJumpState: 1
+  Source: {fileID: 82272964564906132}
+  BoostClip: {fileID: 8300000, guid: 98b6773355ef75b46bdf7ecf6aff0afe, type: 3}
 --- !u!1 &1234082977098520
 GameObject:
   m_ObjectHideFlags: 0

@@ -53,7 +53,7 @@ public class PlayerSpawner : MonoBehaviour
     {
         if (playerCount.Value < playerLimit.Value)
         {
-            for (float id = 1f; id < playerLimit.Value; id++)
+            for (float id = 1f; id <= playerLimit.Value; id++)
             {
                 if (!playerList.Contains(id))
                 {

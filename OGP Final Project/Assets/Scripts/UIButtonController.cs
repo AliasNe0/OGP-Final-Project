@@ -13,6 +13,7 @@ public class UIButtonController : NetworkBehaviour
     [SerializeField] private GameObject disconnectedUI;
     [SerializeField] private GameObject firstTimerUI;
     [SerializeField] private GameObject firstTimerButton;
+    [SerializeField] private TMP_Text waitingText;
     [SerializeField] private GameObject secondTimerUI;
     [SerializeField] private GameObject gameplayUI;
     [SerializeField] private GameObject playerUI;
@@ -63,7 +64,8 @@ public class UIButtonController : NetworkBehaviour
     [ClientRpc]
     private void DisableMenuAudioClientRpc()
     {
-            menuAudio.SetActive(false);
+        waitingText.enabled = false;
+        menuAudio.SetActive(false);
     }
 
     public void StartGameplayAudio()
@@ -71,7 +73,7 @@ public class UIButtonController : NetworkBehaviour
         gameplayAudio.SetActive(true);
     }
 
-        public void HideFirstTimerUI()
+    public void HideFirstTimerUI()
     {
         firstTimerUI.SetActive(false);
     }
@@ -129,6 +131,7 @@ public class UIButtonController : NetworkBehaviour
         connectedUI.SetActive(false);
         firstTimerUI.SetActive(false);
         gameplayUI.SetActive(false);
+        waitingText.enabled = false;
         ShowMenu(true);
         gameEnded.Value = false;
         playerNameText.text = "";
@@ -162,6 +165,7 @@ public class UIButtonController : NetworkBehaviour
         connectedUI.SetActive(true);
         firstTimerButton.SetActive(false);
         firstTimerUI.SetActive(true);
+        waitingText.enabled = true;
         ShowMenu(false);
         StartCoroutine(PlayerNameDelayTimer());
     }

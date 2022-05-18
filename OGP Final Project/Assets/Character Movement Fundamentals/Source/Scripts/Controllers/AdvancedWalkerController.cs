@@ -18,9 +18,9 @@ namespace CMF
 
         //Jump key variables;
         bool jumpInputIsLocked = false;
-        bool jumpKeyWasPressed = false;
+        public bool jumpKeyWasPressed = false;
         bool jumpKeyWasLetGo = false;
-        bool jumpKeyIsPressed = false;
+        public bool jumpKeyIsPressed = false;
 
         //Movement speed;
         public float movementSpeed = 7f;
